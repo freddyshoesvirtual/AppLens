@@ -1,14 +1,8 @@
 package com.applens.util;
 
-import rikka.shizuku.Shizuku;
-import rikka.shizuku.ShizukuRemoteProcess;
-
-/** Java bridge for Shizuku's @JvmSynthetic process API, which Kotlin cannot call directly. */
+/** Kept as a compatibility placeholder; shell commands run through ShizukuUserService. */
+@Deprecated("Use ShizukuManager.executeShell through the Shizuku user service")
 public final class ShizukuProcessHelper {
     private ShizukuProcessHelper() {
-    }
-
-    public static ShizukuRemoteProcess startProcess(String[] command) throws Exception {
-        return Shizuku.newProcess(command, null, null);
     }
 }
