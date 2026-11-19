@@ -2,7 +2,8 @@ package com.applens
 
 import android.app.Application
 
-class AppLensApp : Application() {
+/** Legacy application class; AppLensApplication is registered in the manifest. */
+class AppLensLegacyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
     }

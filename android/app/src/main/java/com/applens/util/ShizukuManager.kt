@@ -4,7 +4,6 @@ import android.content.pm.PackageManager
 import android.content.pm.PackageInfo
 import android.os.Build
 import rikka.shizuku.Shizuku
-import rikka.shizuku.ShizukuRemoteProcess
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
@@ -36,11 +35,7 @@ object ShizukuManager {
 
     /** Execute a shell command via Shizuku with ADB-level privileges. */
     fun executeShell(command: String): String {
-        val process: ShizukuRemoteProcess = Shizuku.newProcess(
-            arrayOf("sh", "-c", command),
-            null,
-            null
-        )
+        val process = ShizukuProcessHelper.startProcess(arrayOf("sh", "-c", command))
         val reader = BufferedReader(InputStreamReader(process.inputStream))
         val errorReader = BufferedReader(InputStreamReader(process.errorStream))
         val output = StringBuilder()
@@ -89,31 +84,27 @@ object ShizukuManager {
     }
 
     fun getPackageInfo(pm: PackageManager, packageName: String): PackageInfo {
-        return try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                pm.getPackageInfo(
-                    packageName,
-                    PackageManager.GET_PERMISSIONS or
-                        PackageManager.GET_ACTIVITIES or
-                        PackageManager.GET_SERVICES or
-                        PackageManager.GET_RECEIVERS or
-                        PackageManager.GET_PROVIDERS or
-                        PackageManager.GET_META_DATA
-                )
-            } else {
-                @Suppress("DEPRECATION")
-                pm.getPackageInfo(
-                    packageName,
-                    PackageManager.GET_PERMISSIONS or
-                        PackageManager.GET_ACTIVITIES or
-                        PackageManager.GET_SERVICES or
-                        PackageManager.GET_RECEIVERS or
-                        PackageManager.GET_PROVIDERS or
-                        PackageManager.GET_META_DATA
-                )
-            }
-        } catch (e: Exception) {
-            throw e
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            pm.getPackageInfo(
+                packageName,
+                PackageManager.GET_PERMISSIONS or
+                    PackageManager.GET_ACTIVITIES or
+                    PackageManager.GET_SERVICES or
+                    PackageManager.GET_RECEIVERS or
+                    PackageManager.GET_PROVIDERS or
+                    PackageManager.GET_META_DATA
+            )
+        } else {
+            @Suppress("DEPRECATION")
+            pm.getPackageInfo(
+                packageName,
+                PackageManager.GET_PERMISSIONS or
+                    PackageManager.GET_ACTIVITIES or
+                    PackageManager.GET_SERVICES or
+                    PackageManager.GET_RECEIVERS or
+                    PackageManager.GET_PROVIDERS or
+                    PackageManager.GET_META_DATA
+            )
         }
     }
 }
