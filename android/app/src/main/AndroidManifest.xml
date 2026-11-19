@@ -12,7 +12,7 @@
         android:maxSdkVersion="28" />
 
     <application
-        android:name=".AppLensApp"
+        android:name=".AppLensApplication"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="AppLens"
@@ -29,7 +29,6 @@
             </intent-filter>
         </activity>
 
-        <!-- Accessibility Service -->
         <service
             android:name=".service.AppLensAccessibilityService"
             android:exported="false"
@@ -43,7 +42,6 @@
                 android:resource="@xml/accessibility_config" />
         </service>
 
-        <!-- File Provider for sharing ZIP -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -54,7 +52,6 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <!-- Shizuku provider -->
         <provider
             android:name="rikka.shizuku.ShizukuProvider"
             android:authorities="${applicationId}.shizuku"
