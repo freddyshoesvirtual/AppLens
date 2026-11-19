@@ -19,7 +19,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MaterialTheme(colorScheme = darkColorScheme()) {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    AppLensApp()
+                    AppLensRoot()
                 }
             }
         }
@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun AppLensApp() {
+fun AppLensRoot() {
     var phase by remember { mutableStateOf(ExtractionPhase.Onboarding) }
     val state by ExtractionState.state.collectAsState()
 

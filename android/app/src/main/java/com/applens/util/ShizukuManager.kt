@@ -2,9 +2,9 @@ package com.applens.util
 
 import android.content.pm.PackageManager
 import android.content.pm.PackageInfo
-import android.content.pm.ApplicationInfo
 import android.os.Build
 import rikka.shizuku.Shizuku
+import rikka.shizuku.ShizukuRemoteProcess
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
@@ -34,11 +34,13 @@ object ShizukuManager {
         }
     }
 
-    /**
-     * Execute a shell command via Shizuku with ADB-level privileges.
-     */
+    /** Execute a shell command via Shizuku with ADB-level privileges. */
     fun executeShell(command: String): String {
-        val process = Shizuku.newProcess(arrayOf("sh", "-c", command), null, null)
+        val process: ShizukuRemoteProcess = Shizuku.newProcess(
+            arrayOf("sh", "-c", command),
+            null,
+            null
+        )
         val reader = BufferedReader(InputStreamReader(process.inputStream))
         val errorReader = BufferedReader(InputStreamReader(process.errorStream))
         val output = StringBuilder()
@@ -57,24 +59,17 @@ object ShizukuManager {
         return output.toString()
     }
 
-    /**
-     * Run uiautomator dump on the current screen.
-     */
+    /** Run uiautomator dump on the current screen. */
     fun uiautomatorDump(): String {
         val result = executeShell("uiautomator dump --compressed /dev/tty 2>/dev/null")
-        // Some devices write to a file instead
         return if (result.contains("<hierarchy")) {
             result.trim()
         } else {
-            // Try reading the default dump file
-            val fileContent = executeShell("cat /sdcard/window_dump.xml 2>/dev/null")
-            fileContent.trim()
+            executeShell("cat /sdcard/window_dump.xml 2>/dev/null").trim()
         }
     }
 
-    /**
-     * Get the current foreground activity name.
-     */
+    /** Get the current foreground activity name. */
     fun getCurrentActivity(): String {
         return try {
             val result = executeShell("dumpsys activity activities | grep mResumedActivity")
@@ -85,41 +80,39 @@ object ShizukuManager {
         }
     }
 
-    /**
-     * Force-stop an app.
-     */
     fun forceStopApp(packageName: String) {
         executeShell("am force-stop $packageName")
     }
 
-    /**
-     * Launch an app by package name.
-     */
     fun launchApp(packageName: String) {
         executeShell("monkey -p $packageName -c android.intent.category.LAUNCHER 1")
     }
 
-    /**
-     * Get the installed package info using Shizuku's PackageManager.
-     */
     fun getPackageInfo(pm: PackageManager, packageName: String): PackageInfo {
         return try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 pm.getPackageInfo(
                     packageName,
                     PackageManager.GET_PERMISSIONS or
-                    PackageManager.GET_ACTIVITIES or
-                    PackageManager.GET_SERVICES or
-                    PackageManager.GET_RECEIVERS or
-                    PackageManager.GET_PROVIDERS or
-                    PackageManager.GET_META_DATA
+                        PackageManager.GET_ACTIVITIES or
+                        PackageManager.GET_SERVICES or
+                        PackageManager.GET_RECEIVERS or
+                        PackageManager.GET_PROVIDERS or
+                        PackageManager.GET_META_DATA
                 )
             } else {
                 @Suppress("DEPRECATION")
-                pm.getPackageInfo(packageName, PackageManager.GET_PERMISSIONS or PackageManager.GET_ACTIVITIES or PackageManager.GET_SERVICES or PackageManager.GET_RECEIVERS or PackageManager.GET_PROVIDERS)
+                pm.getPackageInfo(
+                    packageName,
+                    PackageManager.GET_PERMISSIONS or
+                        PackageManager.GET_ACTIVITIES or
+                        PackageManager.GET_SERVICES or
+                        PackageManager.GET_RECEIVERS or
+                        PackageManager.GET_PROVIDERS or
+                        PackageManager.GET_META_DATA
+                )
             }
         } catch (e: Exception) {
-            // Fallback via Shizuku shell: dumpsys package
             throw e
         }
     }
